@@ -28,10 +28,23 @@ class Book {
 
 // ADD
 
+function getFormData() {
+    const newTitle = document.getElementById('title').value;
+    const newAuthor = document.getElementById('author').value;
+    const newPages = document.getElementById('pages').value;
+    const newRead = document.getElementById('read').checked;
+
+    cancelNewBookForm();
+    addBookToLibrary(newTitle, newAuthor, newPages, newRead);
+}
+
 function addBookToLibrary(title, author, pages, read) {
 
     const newBook = new Book(title, author, pages, read);
     myLibrary.push(newBook);
+
+    cleanExistingCards();
+    loopThroughArray();
 }
 
 // DISPLAY
@@ -43,32 +56,41 @@ function loopThroughArray() {
     })
 }
 
+function cleanExistingCards() {
+
+    const cards = document.querySelectorAll('.book-card');
+
+    if (cards !== []) cards.forEach(card => {
+        document.querySelector('main').removeChild(card);
+    })
+}
+
 function buildBookCard(obj, index) {
 
     const card = document.createElement('div');
     const main = document.querySelector('main');
     const readDiv = document.createElement('div');
-    const textFieldNames = ['title', 'author', 'pages'];
+    const fields = ['title', 'author', 'pages'];
 
     main.appendChild(card);
     card.classList.add('book-card', index)
 
-    for (let i = 0; i < textFieldNames.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
 
         const fieldDiv = document.createElement('div');
         const fieldName = document.createElement('div');
         const fieldContent = document.createElement('div');
 
-        fieldDiv.classList.add(`${textFieldNames[i]}-container`, index);
+        fieldDiv.classList.add(`${fields[i]}-container`, index);
         card.appendChild(fieldDiv);
 
-        fieldName.classList.add(textFieldNames[i], index);
+        fieldName.classList.add(fields[i], index);
         fieldDiv.appendChild(fieldName);
-        fieldName.textContent = textFieldNames[i][0].toUpperCase() + textFieldNames[i].slice(1);
+        fieldName.textContent = fields[i][0].toUpperCase() + fields[i].slice(1);
 
-        fieldContent.classList.add(`${textFieldNames[i]}-content`, index);
+        fieldContent.classList.add(`${fields[i]}-content`, index);
         fieldDiv.appendChild(fieldContent);
-        fieldContent.textContent = obj[textFieldNames[i]];
+        fieldContent.textContent = obj[fields[i]];
     }
 
     readDiv.classList.add('read-container', index);
@@ -90,7 +112,7 @@ function printReadStatus(status, readDiv) {
     }
 }
 
-// NEW BOOK BUILD
+// NEW BOOK INTERFACE
 
 document.querySelector('.new-book').addEventListener('click', buildNewBookForm);
 
@@ -100,12 +122,12 @@ function buildNewBookForm() {
     const form = document.createElement('form');
 
     animateButtons.call(this);
-    buildEmptyCard(card);
-    buildCardForm(card, form);
-    buildCardButtons(form);
+    buildBlankNewCard(card);
+    buildNewCardForm(card, form);
+    buildNewCardButtons(form);
 };
 
-function buildEmptyCard(card) {
+function buildBlankNewCard(card) {
 
     const body = document.querySelector('body');
     const coverDiv = document.createElement('div');
@@ -117,38 +139,42 @@ function buildEmptyCard(card) {
     coverDiv.appendChild(card);
 }
 
-function buildCardForm(card, form) {
+function buildNewCardForm(card, form) {
 
-    const textFieldNames = ['title', 'author', 'pages', 'read'];
+    const inputNames = ['title', 'author', 'pages', 'read'];
 
-    form.classList.add('new-book-form');
+    form.setAttribute('id', 'new-book-form');
+    form.setAttribute('name', 'new-book-form');
+    form.setAttribute('onsubmit', 'getFormData(); return false');
     card.appendChild(form);
 
-    for (let i = 0; i < textFieldNames.length; i++) {
+    for (let i = 0; i < inputNames.length; i++) {
         const inputDiv = document.createElement('div');
         const label = document.createElement('label');
         const input = document.createElement('input');
 
-        inputDiv.classList.add(`new-book-${textFieldNames[i]}-container`);
+        inputDiv.classList.add(`new-book-${inputNames[i]}-container`);
         form.appendChild(inputDiv);
 
-        label.classList.add(`new-book-${textFieldNames[i]}-label`);
-        label.setAttribute('for', `${textFieldNames[i]}`);
+        label.classList.add(`new-book-${inputNames[i]}-label`);
+        label.setAttribute('for', `${inputNames[i]}`);
         inputDiv.appendChild(label);
-        label.textContent = textFieldNames[i][0].toUpperCase() + textFieldNames[i].slice(1);
+        label.textContent = inputNames[i][0].toUpperCase() + inputNames[i].slice(1);
 
-        input.classList.add(`new-book-${textFieldNames[i]}-input`);
-        input.setAttribute('name', `${textFieldNames[i]}`);
-        input.setAttribute('id', `${textFieldNames[i]}`);
+        input.classList.add(`new-book-${inputNames[i]}-input`);
+        input.setAttribute('name', `${inputNames[i]}`);
+        input.setAttribute('id', `${inputNames[i]}`);
         inputDiv.appendChild(input)
 
-        switch(textFieldNames[i]) {
+        switch (inputNames[i]) {
             case 'title':
             case 'author':
                 input.setAttribute('type', 'text');
+                input.required = true;
                 break;
             case 'pages':
                 input.setAttribute('type', 'number');
+                input.required = true;
                 break;
             case 'read':
                 input.setAttribute('type', 'checkbox');
@@ -158,7 +184,7 @@ function buildCardForm(card, form) {
     }
 }
 
-function buildCardButtons(form) {
+function buildNewCardButtons(form) {
 
     const buttonsDiv = document.createElement('div');
     const addBookButton = document.createElement('button');
@@ -168,7 +194,7 @@ function buildCardButtons(form) {
     form.appendChild(buttonsDiv);
 
     addBookButton.classList.add('new-book-add-button');
-    addBookButton.setAttribute('type', 'submit')
+    addBookButton.setAttribute('type', 'submit');
     buttonsDiv.appendChild(addBookButton);
     addBookButton.textContent = 'ADD BOOK';
 
@@ -188,20 +214,6 @@ function cancelNewBookForm() {
 
     body.removeChild(coverDiv);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function animateButtons() {
 
