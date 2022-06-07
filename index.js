@@ -173,22 +173,13 @@ function buildNewCardForm(card, form) {
         input.classList.add(`new-book-${inputNames[i]}-input`);
         input.setAttribute('name', `${inputNames[i]}`);
         input.setAttribute('id', `${inputNames[i]}`);
+        input.required = true;
         inputDiv.appendChild(input)
 
-        switch (inputNames[i]) {
-            case 'title':
-            case 'author':
-                input.setAttribute('type', 'text');
-                input.required = true;
-                break;
-            case 'pages':
-                input.setAttribute('type', 'number');
-                input.required = true;
-                break;
-            case 'read':
-                input.setAttribute('type', 'checkbox');
-                label.textContent = 'Did you read this book?';
-                break;
+        if (inputNames[i] === 'pages') {
+            input.setAttribute('type', 'number');
+        } else {
+            input.setAttribute('type', 'text');
         }
     }
 }
@@ -204,6 +195,7 @@ function buildNewCardCheckbox(form) {
 
     input.classList.add('new-book-read-input');
     input.setAttribute('name', 'read');
+    input.setAttribute('id', 'read')
     input.setAttribute('type', 'checkbox');
     inputDiv.appendChild(input)
 
