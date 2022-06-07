@@ -1,17 +1,4 @@
-let myLibrary = [
-    {
-        title: 'The Hobbit',
-        author: 'J.R.R. Tolkien',
-        pages: 295,
-        read: true,
-    },
-    {
-        title: 'The Schmobbit',
-        author: 'S.S.S. Schmolkien',
-        pages: 666,
-        read: false,
-    }
-];
+let myLibrary = [];
 
 document.onload = loopThroughArray();
 
@@ -25,7 +12,15 @@ class Book {
         this.pages = pages;
         this.read = read;
     }
+
+    changeRead() {
+
+        return this.read === true ? this.read = false : this.read = true;
+    }
 }
+
+document.onload = addBookToLibrary('The Hobbit', 'J.R.R. Tolkien', 395, true);
+document.onload = addBookToLibrary('The Shcmobbit', 'S.S.S. Shcmolkien', 666, false);
 
 // ADD
 
@@ -71,7 +66,7 @@ function buildBookCard(obj, index) {
     const card = document.createElement('div');
     const main = document.querySelector('main');
     const fields = ['title', 'author', 'pages'];
-    const readDiv = document.createElement('div');
+    const readButton = document.createElement('button');
     const deleteButton = document.createElement('button');
 
     main.appendChild(card);
@@ -96,26 +91,32 @@ function buildBookCard(obj, index) {
         fieldContent.textContent = obj[fields[i]];
     }
 
-    readDiv.classList.add('read-container');
-    card.appendChild(readDiv);
-    printReadStatus(obj.read, readDiv);
+    readButton.classList.add('read-button');
+    readButton.setAttribute('onclick', 'changeReadStatus.call(this)');
+    readButton.setAttribute('data-index', index);
+    card.appendChild(readButton);
+    printReadStatus(obj.read, readButton);
 
     deleteButton.classList.add('delete-book-button');
     deleteButton.setAttribute('onclick', 'deleteBook.call(this)');
     deleteButton.setAttribute('data-index', index);
     card.appendChild(deleteButton);
-    deleteButton.textContent = 'DELETE';
+    deleteButton.textContent = 'Delete';
 }
 
-function printReadStatus(status, readDiv) {
+function printReadStatus(status, readButton) {
 
     if (status) {
 
-        readDiv.textContent = '✔️ Already read this';
+        readButton.textContent = 'Already read this';
+        readButton.classList.remove('button-red');
+        readButton.classList.add('button-green');
 
     } else {
 
-        readDiv.textContent = '❌ Didn\'t read that yet';
+        readButton.textContent = 'Didn\'t read that yet';
+        readButton.classList.remove('button-green');
+        readButton.classList.add('button-red');
     }
 }
 
@@ -131,6 +132,7 @@ function buildNewBookForm() {
     animateButtons.call(this);
     buildBlankNewCard(card);
     buildNewCardForm(card, form);
+    buildNewCardCheckbox(form)
     buildNewCardButtons(form);
 };
 
@@ -148,7 +150,7 @@ function buildBlankNewCard(card) {
 
 function buildNewCardForm(card, form) {
 
-    const inputNames = ['title', 'author', 'pages', 'read'];
+    const inputNames = ['title', 'author', 'pages'];
 
     form.setAttribute('id', 'new-book-form');
     form.setAttribute('name', 'new-book-form');
@@ -191,6 +193,26 @@ function buildNewCardForm(card, form) {
     }
 }
 
+function buildNewCardCheckbox(form) {
+
+    const inputDiv = document.createElement('div');
+    const label = document.createElement('label');
+    const input = document.createElement('input');
+
+    inputDiv.classList.add(`new-book-read-container`);
+    form.appendChild(inputDiv);
+
+    input.classList.add('new-book-read-input');
+    input.setAttribute('name', 'read');
+    input.setAttribute('type', 'checkbox');
+    inputDiv.appendChild(input)
+
+    label.classList.add('new-book-read-label');
+    label.setAttribute('for', 'read');
+    inputDiv.appendChild(label);
+    label.textContent = 'Did you read this book?';
+}
+
 function buildNewCardButtons(form) {
 
     const buttonsDiv = document.createElement('div');
@@ -200,16 +222,16 @@ function buildNewCardButtons(form) {
     buttonsDiv.classList.add('new-book-button-container');
     form.appendChild(buttonsDiv);
 
-    addBookButton.classList.add('new-book-add-button');
+    addBookButton.classList.add('new-book-add-button', 'button-green');
     addBookButton.setAttribute('type', 'submit');
     buttonsDiv.appendChild(addBookButton);
-    addBookButton.textContent = 'ADD BOOK';
+    addBookButton.textContent = 'Add book';
 
-    cancelButton.classList.add('new-book-cancel-button');
+    cancelButton.classList.add('new-book-cancel-button', 'button-red');
     cancelButton.setAttribute('type', 'button');
     cancelButton.setAttribute('onclick', 'cancelNewBookForm()')
     buttonsDiv.appendChild(cancelButton);
-    cancelButton.textContent = 'CANCEL';
+    cancelButton.textContent = 'Cancel';
 }
 
 // NEW BOOK CANCEL
@@ -240,7 +262,18 @@ function animateButtons() {
 function deleteBook() {
     const index = this.dataset.index;
     myLibrary.splice(index, 1);
-    
+
+    animateButtons.call(this);
     cleanExistingCards();
     loopThroughArray();
+}
+
+// READ STATUS
+
+function changeReadStatus() {
+    const index = this.dataset.index;
+    const readStatus = myLibrary[index].changeRead();
+
+    printReadStatus(readStatus, this);
+    animateButtons.call(this);
 }
