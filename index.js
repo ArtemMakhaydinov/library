@@ -7,7 +7,7 @@ let myLibrary = [
     },
     {
         title: 'The Schmobbit',
-        author: 'J.R.R. Schmolkien',
+        author: 'S.S.S. Schmolkien',
         pages: 666,
         read: false,
     }
@@ -18,6 +18,7 @@ document.onload = loopThroughArray();
 // CLASS DECLARATION
 
 class Book {
+
     constructor(title, author, pages, read) {
         this.title = title;
         this.author = author;
@@ -69,11 +70,13 @@ function buildBookCard(obj, index) {
 
     const card = document.createElement('div');
     const main = document.querySelector('main');
-    const readDiv = document.createElement('div');
     const fields = ['title', 'author', 'pages'];
+    const readDiv = document.createElement('div');
+    const deleteButton = document.createElement('button');
 
     main.appendChild(card);
-    card.classList.add('book-card', index)
+    card.classList.add('book-card');
+    card.setAttribute('data-index', index);
 
     for (let i = 0; i < fields.length; i++) {
 
@@ -81,38 +84,42 @@ function buildBookCard(obj, index) {
         const fieldName = document.createElement('div');
         const fieldContent = document.createElement('div');
 
-        fieldDiv.classList.add(`${fields[i]}-container`, index);
+        fieldDiv.classList.add(`${fields[i]}-container`);
         card.appendChild(fieldDiv);
 
-        fieldName.classList.add(fields[i], index);
+        fieldName.classList.add(fields[i]);
         fieldDiv.appendChild(fieldName);
         fieldName.textContent = fields[i][0].toUpperCase() + fields[i].slice(1);
 
-        fieldContent.classList.add(`${fields[i]}-content`, index);
+        fieldContent.classList.add(`${fields[i]}-content`);
         fieldDiv.appendChild(fieldContent);
         fieldContent.textContent = obj[fields[i]];
     }
 
-    readDiv.classList.add('read-container', index);
+    readDiv.classList.add('read-container');
     card.appendChild(readDiv);
     printReadStatus(obj.read, readDiv);
+
+    deleteButton.classList.add('delete-book-button');
+    deleteButton.setAttribute('onclick', 'deleteBook.call(this)');
+    deleteButton.setAttribute('data-index', index);
+    card.appendChild(deleteButton);
+    deleteButton.textContent = 'DELETE';
 }
 
 function printReadStatus(status, readDiv) {
 
     if (status) {
 
-        readDiv.textContent = 'Already read this';
-        readDiv.style.color = 'green';
+        readDiv.textContent = '✔️ Already read this';
 
     } else {
 
-        readDiv.textContent = 'Didn\'t read that yet';
-        readDiv.style.color = 'red';
+        readDiv.textContent = '❌ Didn\'t read that yet';
     }
 }
 
-// NEW BOOK INTERFACE
+// CREATE NEW BOOK
 
 document.querySelector('.new-book').addEventListener('click', buildNewBookForm);
 
@@ -215,6 +222,8 @@ function cancelNewBookForm() {
     body.removeChild(coverDiv);
 }
 
+// BUTTON ANIMATION
+
 function animateButtons() {
 
     const button = this;
@@ -224,4 +233,14 @@ function animateButtons() {
     setTimeout(function () {
         button.classList.remove('pressed')
     }, 100);
+}
+
+// DELETE BOOK
+
+function deleteBook() {
+    const index = this.dataset.index;
+    myLibrary.splice(index, 1);
+    
+    cleanExistingCards();
+    loopThroughArray();
 }
